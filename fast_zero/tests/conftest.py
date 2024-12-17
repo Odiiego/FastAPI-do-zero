@@ -2,7 +2,6 @@ from contextlib import contextmanager
 from datetime import datetime
 
 import pytest
-from fastapi.testclient import TestClient
 from sqlalchemy import StaticPool, create_engine, event
 from sqlalchemy.orm import Session
 
