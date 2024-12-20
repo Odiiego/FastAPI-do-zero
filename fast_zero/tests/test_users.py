@@ -105,22 +105,13 @@ def test_update_user_exception(client, user, other_user, token):
     assert response.json() == {'detail': 'Not enough permissions'}
 
 
-def test_update_integrity_error(client, user, token):
-    client.post(
-        '/users',
-        json={
-            'username': 'fausto',
-            'email': 'fausto@teste.com',
-            'password': 'secret',
-        },
-    )
-
+def test_update_integrity_error(client, user, other_user, token):
     response_update = client.put(
         f'/users/{user.id}',
         headers={'Authorization': f'Bearer {token}'},
         json={
-            'username': 'fausto',
-            'email': 'bob@example.com',
+            'username': other_user.username,
+            'email': other_user.email,
             'password': 'mynewpassword',
         },
     )
