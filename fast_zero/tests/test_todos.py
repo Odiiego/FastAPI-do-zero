@@ -5,21 +5,24 @@ import factory.fuzzy
 from fast_zero.models import Todo, TodoState
 
 
-def test_create_todo(client, token):
-    response = client.post(
-        '/todos/',
-        headers={'Authorization': f'Bearer {token}'},
-        json={
-            'title': 'Test todo',
-            'description': 'Test todo description',
-            'state': 'draft',
-        },
-    )
+def test_create_todo(client, token, mock_db_time):
+    with mock_db_time(model=Todo) as time:
+        response = client.post(
+            '/todos/',
+            headers={'Authorization': f'Bearer {token}'},
+            json={
+                'title': 'Test todo',
+                'description': 'Test todo description',
+                'state': 'draft',
+            },
+        )
     assert response.json() == {
         'id': 1,
         'title': 'Test todo',
         'description': 'Test todo description',
         'state': 'draft',
+        'created_at': time.isoformat(),
+        'updated_at': time.isoformat(),
     }
 
 
@@ -31,6 +34,35 @@ class TodoFactory(factory.Factory):
     description = factory.Faker('text')
     state = factory.fuzzy.FuzzyChoice(TodoState)
     user_id = 1
+
+
+def test_get_todos(session, client, user, token, mock_db_time):
+    with mock_db_time(model=Todo) as time:
+        session.add(
+            TodoFactory.create(
+                user_id=user.id,
+                title='Test todo',
+                description='Test todo description',
+                state='done',
+            )
+        )
+        session.commit()
+
+    response = client.get(
+        '/todos/?title=Test todo',
+        headers={'Authorization': f'Bearer {token}'},
+    )
+
+    assert response.json()['todos'] == [
+        {
+            'id': user.id,
+            'title': 'Test todo',
+            'description': 'Test todo description',
+            'state': 'done',
+            'created_at': time.isoformat(),
+            'updated_at': time.isoformat(),
+        }
+    ]
 
 
 def test_list_todos_should_return_5_todos(session, client, user, token):
