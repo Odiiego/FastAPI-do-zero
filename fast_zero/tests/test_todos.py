@@ -17,6 +17,9 @@ def test_create_todo(client, token):
     )
     assert response.json() == {
         'id': 1,
+        'title': 'Test todo',
+        'description': 'Test todo description',
+        'state': 'draft',
     }
 
 
@@ -190,8 +193,7 @@ def test_patch_todo(session, client, user, token):
     )
 
     assert response.status_code == HTTPStatus.OK
-    # assert response.json()['title'] == 'teste!'
-    # Isso aqui só retorna o ID 1 por causa do schema publicTodo
+    assert response.json()['title'] == 'teste!'
 
 
 def test_delete_todo(session, client, user, token):

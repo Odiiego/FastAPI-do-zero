@@ -44,7 +44,7 @@ class TodoSchema(BaseModel):
     state: str
 
 
-class TodoPublic(BaseModel):
+class TodoPublic(TodoSchema):
     id: int
 
 
