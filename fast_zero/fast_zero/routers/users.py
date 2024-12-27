@@ -19,12 +19,12 @@ from fast_zero.security import get_current_user, get_password_hash
 
 router = APIRouter(prefix='/users', tags=['users'])
 
-CurrentSession = Annotated[Session, Depends(get_session)]
-CurrentUser = Annotated[User, Depends(get_current_user)]
+T_Session = Annotated[Session, Depends(get_session)]
+T_CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 @router.post('/', status_code=HTTPStatus.CREATED, response_model=UserPublic)
-def create_user(user: UserSchema, session: CurrentSession):
+def create_user(user: UserSchema, session: T_Session):
     db_user = session.scalar(
         select(User).where(
             (User.username == user.username) | (User.email == user.email)
@@ -57,7 +57,7 @@ def create_user(user: UserSchema, session: CurrentSession):
 
 @router.get('/', response_model=UserList)
 def read_users(
-    session: CurrentSession, filter_users: Annotated[FilterPage, Query()]
+    session: T_Session, filter_users: Annotated[FilterPage, Query()]
 ):
     users = session.scalars(
         select(User).offset(filter_users.offset).limit(filter_users.limit)
@@ -68,7 +68,7 @@ def read_users(
 @router.get('/{user_id}', response_model=UserPublic)
 def read_user(
     user_id: int,
-    session: CurrentSession,
+    session: T_Session,
 ):
     user_with_id = session.scalar(select(User).where(User.id == user_id))
 
@@ -84,8 +84,8 @@ def read_user(
 def update_user(
     user_id: int,
     user: UserSchema,
-    session: CurrentSession,
-    current_user: CurrentUser,
+    session: T_Session,
+    current_user: T_CurrentUser,
 ):
     if current_user.id != user_id:
         raise HTTPException(
@@ -109,8 +109,8 @@ def update_user(
 @router.delete('/{user_id}', response_model=Message)
 def delete_user(
     user_id: int,
-    session: CurrentSession,
-    current_user: CurrentUser,
+    session: T_Session,
+    current_user: T_CurrentUser,
 ):
     if current_user.id != user_id:
         raise HTTPException(
