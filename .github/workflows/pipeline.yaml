@@ -10,3 +10,14 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
+      - name: Instalar o poetry
+        run: pipx install poetry
+
+      - name: Instalar as dependências
+        working-directory: ./fast_zero
+        run: poetry install
+
+      - name: Executar os testes
+        working-directory: ./fast_zero
+        run: poetry run task test
