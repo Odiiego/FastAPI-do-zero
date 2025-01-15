@@ -6,6 +6,7 @@ COPY . .
 
 RUN pip install poetry
 
+WORKDIR fast_zero
 RUN poetry config installer.max-workers 10
 RUN poetry install --no-interaction --no-ansi
 
